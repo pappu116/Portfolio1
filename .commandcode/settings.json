@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(agent-browser:*)",
+      "powershell",
+      "Shell(agent-browser skills get core --full 2>nul > \"%TEMP%\\ab-core.md\" && findstr /i \"html\" \"%TEMP%\\ab-core.md\" | findstr /v \"outerHTML done\")",
+      "Shell(agent-browser --session gemini-design snapshot > \"C:\\Users\\pappu\\AppData\\Local\\Temp\\commandcode\\C--Development-my-portfolio\\a7f510b6-a13e-4076-af49-1d96f0d73b65\\scratchpad\\snap-full.txt\" 2>nul && powershell -NoProfile -Command \"Select-String -Path 'C:\\Users\\pappu\\AppData\\Local\\Temp\\commandcode\\C--Development-my-portfolio\\a7f510b6-a13e-4076-af49-1d96f0d73b65\\scratchpad\\snap-full.txt' -Pattern 'generic.*ref=' | Select-Object -First 40\")",
+      "Shell(node \"C:\\Users\\pappu\\AppData\\Local\\Temp\\commandcode\\C--Development-my-portfolio\\a7f510b6-a13e-4076-af49-1d96f0d73b65\\scratchpad\\cdp-dump.mjs\")",
+      "Shell(node \"C:\\Users\\pappu\\AppData\\Local\\Temp\\commandcode\\C--Development-my-portfolio\\a7f510b6-a13e-4076-af49-1d96f0d73b65\\scratchpad\\cdp-dump2.mjs\")",
+      "Shell(node -v)",
+      "Shell(npm:*)",
+      "Shell(npx tsc --noEmit 2 >& 1)",
+      "Shell(npx tsc --noEmit)",
+      "Shell(powershell -NoProfile -Command \"$log='C:\\Users\\pappu\\AppData\\Local\\Temp\\commandcode\\shellout\\2026-10-21T06-40-55-201Z-s0zphykk.log'; Get-Content $log -Tail 15; Test-Path 'C:\\Development\\my-portfolio\\node_modules\\typescript\\package.json'\")",
+      "Shell(dir node_modules /b | findstr /c:\" \" /v 2>nul | more +0)",
+      "Shell(rmdir:*)",
+      "Shell(del:*)",
+      "Shell(npx next build 2>&1)",
+      "Shell(powershell -NoProfile -Command \"Get-NetTCPConnection -OwningProcess 6236 -State Listen -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort | Format-Table -AutoSize\")",
+      "Shell(netstat:*)",
+      "Shell(findstr:*)",
+      "Shell(set:*)",
+      "Shell(npx next build 2 >& 1)",
+      "Shell(agent-browser close --session portfolio-test 2>nul & agent-browser close)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
