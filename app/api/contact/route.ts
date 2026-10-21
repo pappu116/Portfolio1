@@ -1,12 +1,20 @@
 import { NextResponse } from "next/server";
+import { validateContactPayload } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 
-// Contact endpoint for the portfolio form. Messages are validated and logged
-// server-side; plug an email provider (Resend/SES/etc.) into `deliver()` when
-// ready. Everything is needed for the delivery: name, email, subject, message.
+// Contact endpoint for the portfolio form.
+//
+// Messages are validated (see lib/contact.ts) and logged server-side. No
+// email provider is wired up yet, so the message is NOT delivered anywhere —
+// the response says so explicitly with `delivered: false`, and the UI reports
+// "received" rather than "sent".
+//
+// To enable real delivery, add an email provider (Resend/SES/etc.), implement
+// a deliverMessage() helper that calls it, and return `delivered: true` once
+// the provider confirms the send.
 export async function POST(request: Request) {
-  let payload: Record<string, unknown>;
+  let payload: unknown;
 
   try {
     payload = await request.json();
@@ -14,21 +22,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const name = String(payload.name || "").trim();
-  const email = String(payload.email || "").trim();
-  const subject = String(payload.subject || "").trim();
-  const message = String(payload.message || "").trim();
+  const validation = validateContactPayload(payload);
 
-  if (!name || !email || !subject || !message) {
-    return NextResponse.json(
-      { error: "All fields (name, email, subject, message) are required." },
-      { status: 422 }
-    );
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "Email address looks invalid." }, { status: 422 });
+  if (!validation.ok) {
+    return NextResponse.json({ error: validation.error }, { status: 422 });
   }
 
+  const { name, email, subject, message } = validation.value;
+
+  // The only delivery channel currently configured. The message body is
+  // truncated so a long submission cannot flood the server logs.
   console.log("[contact] new message", {
     name,
     email,
@@ -37,5 +40,5 @@ export async function POST(request: Request) {
     receivedAt: new Date().toISOString(),
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, delivered: false });
 }

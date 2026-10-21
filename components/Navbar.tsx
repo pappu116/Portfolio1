@@ -50,7 +50,7 @@ export default function Navbar({
             {/* Logo */}
             <a href="#hero" className="group flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 via-violet-600 to-pink-500 font-mono text-lg font-bold text-white shadow-lg shadow-cyan-500/20 transition-transform duration-300 group-hover:scale-105">
-                {"</>" as string}
+                {"</>"}
               </div>
               <span className="text-xl font-bold tracking-tight text-white transition-colors group-hover:text-cyan-400">
                 {brandMain}

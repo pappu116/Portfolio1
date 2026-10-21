@@ -11,22 +11,7 @@ import {
   FaShieldHalved,
 } from "react-icons/fa6";
 import { TYPEWRITER_ROLES } from "@/lib/data";
-
-export type HeroProfile = {
-  name: string;
-  login: string;
-  bio: string | null;
-  role: string;
-  avatar: string;
-  profileUrl: string;
-  followers: number;
-  publicRepos: number;
-  yearsOnGitHub: number;
-  location: string;
-  githubEmail: string | null;
-  githubBlog: string | null;
-  twitterUrl: string | null;
-};
+import type { HeroProfile } from "@/lib/types";
 
 // --- Typewriter (exact algorithm port) ---
 function Typewriter({ values }: { values: string[] }) {
@@ -88,20 +73,33 @@ function Stat({
 
   useEffect(() => {
     if (!inView) return;
+
     let count = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
     const step = Math.ceil(target / 40) || 1;
+
     const update = () => {
       count += step;
       if (count > target) count = target;
       setDisplay(`${count}${suffix}`);
-      if (count < target) setTimeout(update, 30);
+      // Schedule the next frame and keep the handle so the timer can be
+      // cancelled if the component unmounts mid-count.
+      if (count < target) timer = setTimeout(update, 30);
     };
+
     update();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [inView, suffix, target]);
 
   return (
     <div ref={ref}>
-      <div className={`font-mono text-3xl font-extrabold sm:text-4xl ${colorClass}`}>
+      <div
+        className={`font-mono text-3xl font-extrabold sm:text-4xl ${colorClass}`}
+      >
         {display}
       </div>
       <div className="mt-1 text-xs text-slate-400 sm:text-sm">{label}</div>
@@ -190,9 +188,15 @@ function ProfileCard({
           {/* Floating Code Visual Overlay */}
           <div className="relative z-10 my-auto hidden translate-z-70 sm:block">
             <div className="glass-panel max-w-xs space-y-1 rounded-xl border border-slate-700/80 bg-slate-900/80 p-4 font-mono text-xs shadow-2xl backdrop-blur-xl">
-              <div className="text-cyan-400">{"> "}{profile.login.toLowerCase()}.getStatus()</div>
+              <div className="text-cyan-400">
+                {"> "}
+                {profile.login.toLowerCase()}.getStatus()
+              </div>
               <div className="pl-2 text-slate-300">
-                status: <span className="text-emerald-400">&apos;Ready to collaborate&apos;</span>
+                status:{" "}
+                <span className="text-emerald-400">
+                  &apos;Ready to collaborate&apos;
+                </span>
               </div>
               <div className="pl-2 text-slate-300">
                 repos: [#{" "}
@@ -207,8 +211,12 @@ function ProfileCard({
           <div className="relative z-10 space-y-3 translate-z-50 border-t border-slate-800/80 pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-extrabold text-white">{profile.name}</h3>
-                <p className="font-mono text-xs text-slate-400">{profile.role}</p>
+                <h3 className="text-2xl font-extrabold text-white">
+                  {profile.name}
+                </h3>
+                <p className="font-mono text-xs text-slate-400">
+                  {profile.role}
+                </p>
               </div>
               <div className="flex space-x-2">
                 <span className="h-3 w-3 rounded-full bg-cyan-400" />
@@ -267,7 +275,10 @@ export default function Hero({
   ];
 
   return (
-    <section id="hero" className="relative flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+    <section
+      id="hero"
+      className="relative flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8"
+    >
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 gap-12 lg:grid-cols-12">
         {/* Left Column: Bio & Intro Text */}
         <div className="z-20 space-y-8 text-center lg:col-span-6 lg:text-left">
@@ -316,8 +327,9 @@ export default function Hero({
             transition={{ duration: 0.6, delay: 0.35 }}
             className="mx-auto max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg lg:mx-0"
           >
-            Full-stack developer specializing in distributed cloud microservices,
-            reactive frontend web applications, and ultra-fluid user interfaces.
+            Full-stack developer specializing in distributed cloud
+            microservices, reactive frontend web applications, and ultra-fluid
+            user interfaces.
           </motion.p>
 
           {/* CTAs */}

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getGitHubProfile, getGitHubUser, yearsSince } from "@/lib/github";
+import { getGitHubProfile, getGitHubUser } from "@/lib/github";
+import { yearsSince } from "@/lib/profile";
 
 export const dynamic = "force-dynamic";
 

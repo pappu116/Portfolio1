@@ -63,7 +63,7 @@ export default function Experience({ items }: { items: TimelineItem[] }) {
               <div className="glass-card rounded-2xl p-6 sm:p-8">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-xl font-bold text-white">{item.title}</h3>
-                  <span className={`${item.textColor} font-mono ${i === 0 ? "" : ""}`}>{item.period}</span>
+                  <span className={`${item.textColor} font-mono`}>{item.period}</span>
                 </div>
                 <p className={`mb-4 text-sm font-semibold ${item.orgColor}`}>{item.org}</p>
                 <p className="mb-4 text-sm leading-relaxed text-slate-300">{item.description}</p>

@@ -5,29 +5,37 @@ import { AnimatePresence, motion } from "framer-motion";
 import { FaArrowRight, FaArrowUpRightFromSquare, FaGithub, FaXmark } from "react-icons/fa6";
 import Icon from "@/components/IconMap";
 import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog";
-import type { ProjectCard } from "@/lib/types";
+import type { ProjectCard, ProjectCategory } from "@/lib/types";
 
-const FILTERS = [
+// One tab per category that `lib/github.ts` can produce, plus "ALL". Keeping
+// this list in sync with ProjectCategory is what guarantees every repository
+// is reachable through some tab.
+const FILTERS: { id: "all" | ProjectCategory; label: string }[] = [
   { id: "all", label: "ALL" },
   { id: "saas", label: "SaaS" },
   { id: "ecommerce", label: "E-Commerce" },
-  { id: "ml", label: "Machine Learning" },
   { id: "mobile", label: "Mobile Apps" },
   { id: "webapp", label: "Web Apps" },
+  { id: "project", label: "Other" },
 ];
 
 export default function Projects({ projects }: { projects: ProjectCard[] }) {
-  const builtIn = useMemo(() => {
-    const set = new Set(projects.map((p) => p.category));
-    return ["all", ...FILTERS.slice(1).map((f) => f.id)].filter(
-      (id) => id === "all" || set.has(id)
+  // Show a category tab only when at least one repository falls into it.
+  const availableCategories = useMemo(() => {
+    const used = new Set(projects.map((project) => project.category));
+
+    return FILTERS.filter(
+      (filter) => filter.id === "all" || used.has(filter.id)
     );
   }, [projects]);
 
-  const [category, setCategory] = useState<string>("all");
+  const [category, setCategory] = useState<"all" | ProjectCategory>("all");
   const [openProject, setOpenProject] = useState<ProjectCard | null>(null);
 
-  const filtered = category === "all" ? projects : projects.filter((p) => p.category === category);
+  const filtered =
+    category === "all"
+      ? projects
+      : projects.filter((project) => project.category === category);
 
   return (
     <section id="projects" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
@@ -40,21 +48,20 @@ export default function Projects({ projects }: { projects: ProjectCard[] }) {
         </div>
         {/* Project Filter */}
         <div className="mt-6 flex flex-wrap gap-2 md:mt-0">
-          {builtIn.map((id) => {
-            const label = FILTERS.find((f) => f.id === id)?.label || id.toUpperCase();
-            const active = category === id;
+          {availableCategories.map((filter) => {
+            const active = category === filter.id;
             return (
               <button
-                key={id}
+                key={filter.id}
                 type="button"
-                onClick={() => setCategory(id)}
+                onClick={() => setCategory(filter.id)}
                 className={
                   active
                     ? "rounded-lg border border-cyan-500 bg-cyan-500/20 px-4 py-2 font-mono text-xs text-cyan-300"
                     : "glass-card rounded-lg px-4 py-2 font-mono text-xs text-slate-400 hover:text-white"
                 }
               >
-                {label}
+                {filter.label}
               </button>
             );
           })}
@@ -67,7 +74,7 @@ export default function Projects({ projects }: { projects: ProjectCard[] }) {
           {filtered.map((project, i) => (
             <motion.div
               layout
-              key={project.github + project.title}
+              key={project.id}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}

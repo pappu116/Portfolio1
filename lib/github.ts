@@ -3,7 +3,7 @@
 // renders, even if GitHub is unreachable or rate-limits us.
 
 import { PROJECT_ACCENTS } from "@/lib/data";
-import type { ProjectCard } from "@/lib/types";
+import type { ProjectCard, ProjectCategory } from "@/lib/types";
 
 const GITHUB_USER = process.env.GITHUB_USER || "pappu116";
 const API = "https://api.github.com";
@@ -55,9 +55,22 @@ async function githubFetch<T>(path: string): Promise<T | null> {
       headers,
       next: { revalidate: 1800 },
     });
-    if (!res.ok) return null;
+
+    if (!res.ok) {
+      // Callers treat null as "GitHub is unavailable" and fall back to static
+      // content. Log the reason so a misconfiguration is not invisible.
+      console.warn(`[github] GET ${path} failed with status ${res.status}`);
+      return null;
+    }
+
     return (await res.json()) as T;
-  } catch {
+  } catch (error) {
+    // Network failure, DNS error, timeout — the page still renders, but the
+    // cause belongs in the logs. The Authorization header is never logged.
+    console.warn(
+      `[github] GET ${path} failed:`,
+      error instanceof Error ? error.message : error
+    );
     return null;
   }
 }
@@ -112,12 +125,6 @@ export async function getFeaturedProjects(limit = 6): Promise<ProjectCard[]> {
   return reposToProjectCards(selectFeatured(repos, limit));
 }
 
-export function yearsSince(dateIso: string, now = Date.now()): number {
-  const then = new Date(dateIso).getTime();
-  if (Number.isNaN(then)) return 0;
-  return Math.max(0, Math.floor((now - then) / (365.25 * 24 * 3600 * 1000)));
-}
-
 // --- ProjectCard mapping -----------------------------------------------------
 
 function titleize(name: string): string {
@@ -127,7 +134,7 @@ function titleize(name: string): string {
     .join(" ");
 }
 
-function mapCategory(repo: GitHubRepo): string {
+export function mapCategory(repo: GitHubRepo): ProjectCategory {
   const haystack = [
     repo.name,
     repo.description || "",
@@ -156,7 +163,7 @@ function mapCategory(repo: GitHubRepo): string {
   return "project";
 }
 
-function mapIcon(repo: GitHubRepo): string {
+export function mapIcon(repo: GitHubRepo): string {
   const lower = `${repo.description || ""} ${repo.name}`;
   switch (repo.language) {
     case "Kotlin":
@@ -177,32 +184,56 @@ function mapIcon(repo: GitHubRepo): string {
 
 function mapFullDescription(repo: GitHubRepo, title: string): string {
   const parts: string[] = [];
-  if (repo.description) parts.push(`${repo.description}`);
+
+  if (repo.description) {
+    parts.push(repo.description);
+  }
+
+  const starCount = repo.stargazers_count;
+  const starClause =
+    starCount > 0
+      ? ` with ${starCount} star${starCount === 1 ? "" : "s"}`
+      : "";
+  const languageClause = repo.language
+    ? ` and is written primarily in ${repo.language}`
+    : "";
+
   parts.push(
-    `${repo.name} is public on GitHub${repo.stargazers_count > 0 ? ` with ${repo.stargazers_count} star${repo.stargazers_count === 1 ? "" : "s"}` : ""}${repo.language ? ` and is written primarily in ${repo.language}` : ""}.`
+    `${title} is public on GitHub${starClause}${languageClause}.`
   );
+
   if (repo.topics && repo.topics.length > 0) {
     parts.push(`Topic areas: ${repo.topics.join(", ")}.`);
   }
+
   parts.push(
     `Source, issues and releases for ${title} are hosted under ${repo.html_url} on GitHub.`
   );
+
   return parts.join(" ");
 }
 
 export function reposToProjectCards(repos: GitHubRepo[]): ProjectCard[] {
-  return repos.map((repo, index) => ({
-    id: repo.name,
-    title: titleize(repo.name),
-    description: repo.description || "No description yet — check the repository for details.",
-    fullDescription: mapFullDescription(repo, titleize(repo.name)),
-    category: mapCategory(repo),
-    tech: [...(repo.language ? [repo.language] : []), ...(repo.topics || [])].slice(0, 5),
-    iconKey: mapIcon(repo),
-    accent: PROJECT_ACCENTS[index % PROJECT_ACCENTS.length],
-    github: repo.html_url,
-    demo: repo.homepage || null,
-    stars: repo.stargazers_count,
-    language: repo.language,
-  }));
+  return repos.map((repo, index) => {
+    const title = titleize(repo.name);
+
+    return {
+      id: repo.name,
+      title,
+      description:
+        repo.description || "No description yet — check the repository for details.",
+      fullDescription: mapFullDescription(repo, title),
+      category: mapCategory(repo),
+      tech: [
+        ...(repo.language ? [repo.language] : []),
+        ...(repo.topics || []),
+      ].slice(0, 5),
+      iconKey: mapIcon(repo),
+      accent: PROJECT_ACCENTS[index % PROJECT_ACCENTS.length],
+      github: repo.html_url,
+      demo: repo.homepage || null,
+      stars: repo.stargazers_count,
+      language: repo.language,
+    };
+  });
 }

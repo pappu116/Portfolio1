@@ -76,19 +76,6 @@ body {
   perspective: 1200px;
 }
 
-/* Interactive 3D Showcase Card Styles */
-.showcase-3d-card {
-  transform-style: preserve-3d;
-  transition:
-    transform 0.15s ease-out,
-    box-shadow 0.3s ease;
-  will-change: transform;
-}
-
-.translate-z-30 {
-  transform: translateZ(30px);
-}
-
 .translate-z-50 {
   transform: translateZ(50px);
 }

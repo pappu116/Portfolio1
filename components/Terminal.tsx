@@ -2,19 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Skill } from "@/lib/data";
-import type { ProjectCard } from "@/lib/types";
-import type { HeroProfile } from "@/components/Hero";
+import type { HeroProfile, ProjectCard } from "@/lib/types";
+import { escapeHtml } from "@/lib/html";
 import MatrixRain from "@/components/MatrixRain";
 
 type Line = { type: "cmd" | "out"; html: string };
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 export default function Terminal({
   profile,
@@ -28,11 +20,15 @@ export default function Terminal({
   const login = profile.login.toLowerCase() || "dev";
   const name = profile.name || "Developer";
 
+  // The prompt is rendered as an HTML string, so the GitHub-sourced login
+  // needs escaping there. In JSX, React escapes it automatically.
+  const escapedLogin = escapeHtml(login);
+
   const [lines, setLines] = useState<Line[]>([
     {
       type: "out",
       html:
-        `<span class="text-emerald-400">${login}@${login}</span>:<span class="text-violet-400">~</span>$ welcome-message<br>` +
+        `<span class="text-emerald-400">${escapedLogin}@${escapedLogin}</span>:<span class="text-violet-400">~</span>$ welcome-message<br>` +
         `<span class="text-cyan-300">Type <span class="text-yellow-400 underline font-bold">help</span> to list all available commands.</span>`,
     },
   ]);
@@ -52,7 +48,7 @@ export default function Terminal({
     const cmdLine: Line = {
       type: "cmd",
       html:
-        `<span class="text-emerald-400">${login}@${login}</span>:<span class="text-violet-400">~</span>$ ${escapeHtml(val)}`,
+        `<span class="text-emerald-400">${escapedLogin}@${escapedLogin}</span>:<span class="text-violet-400">~</span>$ ${escapeHtml(val)}`,
     };
 
     let out: Line | null = {
@@ -68,7 +64,7 @@ export default function Terminal({
         out.html = skills
           .map(
             (s) =>
-              `<span class="text-cyan-400">${escapeHtml(s.name)}</span> (${s.category}) - ${s.level}%`
+              `<span class="text-cyan-400">${escapeHtml(s.name)}</span> (${escapeHtml(s.category)}) - ${s.level}%`
           )
           .join("<br>");
         break;
@@ -88,7 +84,7 @@ export default function Terminal({
         ].join("<br>");
         break;
       case "contact":
-        out.html = `GitHub: <span class="text-cyan-400">${profile.profileUrl}</span><br>Email: ${profile.githubEmail ? profile.githubEmail : "via GitHub profile"}<br>Name: ${name}`;
+        out.html = `GitHub: <span class="text-cyan-400">${escapeHtml(profile.profileUrl)}</span><br>Email: ${escapeHtml(profile.githubEmail ? profile.githubEmail : "via GitHub profile")}<br>Name: ${escapeHtml(name)}`;
         break;
       case "matrix":
         setMatrixActive((v) => !v);

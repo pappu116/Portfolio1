@@ -105,14 +105,14 @@ export const TYPEWRITER_ROLES = [
   "Cloud Solutions Engineer",
 ];
 
-export const HERO_TAB_DATA: Record<string, { __html: string }> = {
+export const HERO_TAB_DATA = {
   overview: {
     __html: `
                 <div><span class="text-pink-400">const</span> <span class="text-cyan-400">developer</span> = {</div>
                 <div class="pl-4"><span class="text-slate-400">name:</span> <span class="text-emerald-300">'NAME_PLACEHOLDER'</span>,</div>
                 <div class="pl-4"><span class="text-slate-400">role:</span> <span class="text-emerald-300">'ROLE_PLACEHOLDER'</span>,</div>
                 <div class="pl-4"><span class="text-slate-400">location:</span> <span class="text-emerald-300">'LOCATION_PLACEHOLDER'</span>,</div>
-                <div class="pl-4"><span class="text-slate-400">passions:</span> [<span class="text-emerald-300">'UI/UX'</span>, <span class="text-emerald-300">'Microservices'</span>, <span class="text-emerald-300">'Clean Code'</span>],</div>
+                <div class="pl-4"><span class="text-slate-400">passions:</span> [<span class="text-emerald-300">'UI/UX'</span>, <span class="text-violet-400">'Microservices'</span>, <span class="text-emerald-300">'Clean Code'</span>],</div>
                 <div class="pl-4"><span class="text-slate-400">coffeeToCodeRatio:</span> <span class="text-yellow-400">Infinity</span></div>
                 <div>};</div>
                 <div class="mt-4 text-slate-400">// Ready to build extraordinary digital solutions.</div>
@@ -138,7 +138,13 @@ export const HERO_TAB_DATA: Record<string, { __html: string }> = {
                 <div class="mt-2 text-emerald-400">✓ SLA Uptime: 99.99%</div>
             `,
   },
-};
+} as const;
+
+/**
+ * The tab ids available in the code showcase. Derived from the data above so
+ * a tab can never exist without matching content.
+ */
+export type HeroTabId = keyof typeof HERO_TAB_DATA;
 
 export const PROJECT_ACCENTS = [
   "from-cyan-500 to-blue-600",
@@ -146,5 +152,3 @@ export const PROJECT_ACCENTS = [
   "from-pink-500 to-rose-600",
   "from-emerald-400 to-teal-600",
 ];
-
-export const SOCIALS_FALLBACK = ["#", "#", "#", "#"];

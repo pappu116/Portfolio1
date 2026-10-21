@@ -3,24 +3,26 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaCircleCheck, FaCodeBranch } from "react-icons/fa6";
-import { HERO_TAB_DATA } from "@/lib/data";
-import type { HeroProfile } from "@/components/Hero";
+import { HERO_TAB_DATA, type HeroTabId } from "@/lib/data";
+import { escapeHtml } from "@/lib/html";
+import type { HeroProfile } from "@/lib/types";
 
-const TABS = [
+const TABS: { id: HeroTabId; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "stack", label: "Tech Stack" },
   { id: "arch", label: "Architecture" },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
+];
 
 export default function CodeShowcase({ profile }: { profile: HeroProfile }) {
-  const [tab, setTab] = useState<TabId>("overview");
+  const [tab, setTab] = useState<HeroTabId>("overview");
 
-  const html = (HERO_TAB_DATA[tab] || {}).__html
-    .replace("NAME_PLACEHOLDER", profile.name)
-    .replace("ROLE_PLACEHOLDER", profile.role)
-    .replace("LOCATION_PLACEHOLDER", profile.location);
+  // The template is authored here, but the values substituted into it come
+  // from the GitHub API. Escape the values only — escaping the finished
+  // markup would break its own <span> tags.
+  const html = HERO_TAB_DATA[tab].__html
+    .replace("NAME_PLACEHOLDER", escapeHtml(profile.name))
+    .replace("ROLE_PLACEHOLDER", escapeHtml(profile.role))
+    .replace("LOCATION_PLACEHOLDER", escapeHtml(profile.location));
 
   return (
     <section id="hero-preview" className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   FaCircleCheck,
@@ -13,19 +13,40 @@ import {
   FaSpinner,
   FaXTwitter,
 } from "react-icons/fa6";
-import type { HeroProfile } from "@/components/Hero";
+import type { HeroProfile } from "@/lib/types";
 
 type Toast = { id: number; message: string; ok: boolean };
+
+const TOAST_LIFETIME_MS = 4200;
+const SENT_BADGE_LIFETIME_MS = 3000;
 
 export default function Contact({ profile }: { profile: HeroProfile }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
+  // Every timer this component starts is tracked so it can be cleared when the
+  // component unmounts — otherwise a pending timeout would call setState on an
+  // unmounted component.
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    const pending = timers.current;
+    return () => {
+      pending.forEach(clearTimeout);
+      pending.length = 0;
+    };
+  }, []);
+
   const showToast = (message: string, ok = true) => {
     const id = Date.now() + Math.random();
-    setToasts((t) => [...t, { id, message, ok }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4200);
+    setToasts((current) => [...current, { id, message, ok }]);
+
+    const timer = setTimeout(() => {
+      setToasts((current) => current.filter((toast) => toast.id !== id));
+    }, TOAST_LIFETIME_MS);
+
+    timers.current.push(timer);
   };
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -34,35 +55,48 @@ export default function Contact({ profile }: { profile: HeroProfile }) {
     const data = Object.fromEntries(new FormData(form));
 
     setSending(true);
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+
       if (res.ok) {
         setSent(true);
-        showToast("Thank you! Your message has been sent successfully.");
+        showToast("Thanks! Your message was received.");
         form.reset();
+
+        const timer = setTimeout(() => setSent(false), SENT_BADGE_LIFETIME_MS);
+        timers.current.push(timer);
       } else {
-        showToast("Could not send the message right now. Please try again.", false);
+        // Surface the server's validation message so the visitor knows what
+        // to fix, instead of a generic failure notice.
+        const body = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+
+        showToast(body?.error ?? "Could not send the message right now.", false);
       }
     } catch {
       showToast("Network error — please try again.", false);
     } finally {
       setSending(false);
-      setTimeout(() => setSent(false), 3000);
     }
   };
 
   const inputClass =
     "w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3.5 text-white outline-none transition-all focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400";
 
+  // One entry per platform keeps the icon, label and destination together —
+  // previously the href and the aria-label came from separate index-matched
+  // arrays, so adding or reordering an entry could silently mislabel them.
   const socials = [
-    <FaGithub key="gh" className="text-xl" />,
-    <FaLinkedinIn key="li" className="text-xl" />,
-    <FaXTwitter key="x" className="text-xl" />,
-    <FaDiscord key="dc" className="text-xl" />,
+    { label: "GitHub", icon: <FaGithub className="text-xl" />, href: profile.profileUrl },
+    { label: "LinkedIn", icon: <FaLinkedinIn className="text-xl" />, href: null },
+    { label: "X", icon: <FaXTwitter className="text-xl" />, href: profile.twitterUrl },
+    { label: "Discord", icon: <FaDiscord className="text-xl" />, href: null },
   ];
 
   return (
@@ -134,19 +168,19 @@ export default function Contact({ profile }: { profile: HeroProfile }) {
           <div className="pt-4">
             <div className="mb-3 font-mono text-xs text-slate-400 uppercase">Connect on Social</div>
             <div className="flex space-x-4">
-              {socials.map((icon, i) => {
-                const href =
-                  i === 0 ? profile.profileUrl : i === 2 ? profile.twitterUrl || "#" : "#";
+              {socials.map((social) => {
+                const href = social.href ?? "#";
+
                 return (
                   <a
-                    key={i}
+                    key={social.label}
                     href={href}
                     target={href !== "#" ? "_blank" : undefined}
                     rel={href !== "#" ? "noreferrer" : undefined}
                     className="glass-card flex h-12 w-12 items-center justify-center rounded-xl border border-slate-700 text-slate-300 transition-all hover:scale-110 hover:border-cyan-500/50 hover:text-cyan-400"
-                    aria-label={["GitHub", "LinkedIn", "X", "Discord"][i]}
+                    aria-label={social.label}
                   >
-                    {icon}
+                    {social.icon}
                   </a>
                 );
               })}
@@ -231,7 +265,9 @@ export default function Contact({ profile }: { profile: HeroProfile }) {
                 disabled={sending}
                 className="glow-btn flex w-full items-center justify-center space-x-3 rounded-xl border border-cyan-500/50 bg-slate-900 py-4 font-bold text-white transition-all hover:scale-[1.01] disabled:opacity-70"
               >
-                <span>{sent ? "Message Sent!" : sending ? "Sending..." : "Send Message"}</span>
+                <span>
+                  {sent ? "Message Received!" : sending ? "Sending..." : "Send Message"}
+                </span>
                 {sending ? (
                   <FaSpinner className="animate-spin text-sm text-cyan-400" />
                 ) : sent ? (
@@ -248,19 +284,19 @@ export default function Contact({ profile }: { profile: HeroProfile }) {
       {/* TOAST NOTIFICATION CONTAINER */}
       <div className="pointer-events-none fixed right-6 bottom-6 z-50 flex flex-col space-y-3">
         <AnimatePresence>
-          {toasts.map((t) => (
+          {toasts.map((toast) => (
             <motion.div
-              key={t.id}
+              key={toast.id}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 16 }}
               transition={{ duration: 0.3 }}
               className={`glass-panel pointer-events-auto flex items-center space-x-3 rounded-xl border px-5 py-3.5 shadow-xl ${
-                t.ok ? "border-emerald-500/50 text-emerald-300" : "border-cyan-500/50 text-cyan-300"
+                toast.ok ? "border-emerald-500/50 text-emerald-300" : "border-cyan-500/50 text-cyan-300"
               }`}
             >
               <FaCircleCheck className="text-lg" />
-              <span className="font-mono text-xs font-bold">{t.message}</span>
+              <span className="font-mono text-xs font-bold">{toast.message}</span>
             </motion.div>
           ))}
         </AnimatePresence>
