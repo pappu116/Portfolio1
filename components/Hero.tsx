@@ -110,7 +110,13 @@ function Stat({
 }
 
 // --- 3D tilt profile card ---
-function ProfileCard({ profile }: { profile: HeroProfile }) {
+function ProfileCard({
+  profile,
+  portraitSrc,
+}: {
+  profile: HeroProfile;
+  portraitSrc: string | null;
+}) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -162,7 +168,7 @@ function ProfileCard({ profile }: { profile: HeroProfile }) {
           <div className="absolute inset-0 z-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={profile.avatar}
+              src={portraitSrc || profile.avatar}
               alt="Profile Showcase"
               className="h-full w-full object-cover object-top opacity-90 transition-transform duration-700 ease-out group-hover:scale-105"
             />
@@ -232,7 +238,13 @@ function ProfileCard({ profile }: { profile: HeroProfile }) {
   );
 }
 
-export default function Hero({ profile }: { profile: HeroProfile }) {
+export default function Hero({
+  profile,
+  portraitSrc,
+}: {
+  profile: HeroProfile;
+  portraitSrc: string | null;
+}) {
   const stats = [
     {
       target: profile.yearsOnGitHub,
@@ -256,100 +268,100 @@ export default function Hero({ profile }: { profile: HeroProfile }) {
 
   return (
     <section id="hero" className="relative flex min-h-[calc(100vh-6rem)] items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 gap-12 lg:grid-cols-12">
-          {/* Left Column: Bio & Intro Text */}
-          <div className="z-20 space-y-8 text-center lg:col-span-6 lg:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="glass-panel inline-flex items-center space-x-3 rounded-full border border-cyan-500/30 px-4 py-2"
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 gap-12 lg:grid-cols-12">
+        {/* Left Column: Bio & Intro Text */}
+        <div className="z-20 space-y-8 text-center lg:col-span-6 lg:text-left">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="glass-panel inline-flex items-center space-x-3 rounded-full border border-cyan-500/30 px-4 py-2"
+          >
+            <span className="relative flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
+            </span>
+            <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase">
+              Available for New Projects &amp; Roles
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-6xl xl:text-7xl"
+          >
+            Crafting High Performance <br />
+            <span className="text-gradient">Digital Architectures</span>
+          </motion.h1>
+
+          {/* Dynamic Typewriter Text */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="flex h-10 items-center justify-center space-x-2 font-mono text-xl text-slate-300 sm:text-2xl lg:justify-start"
+          >
+            <span className="text-cyan-400">{">"}</span>
+            <span className="font-semibold text-slate-100">
+              <Typewriter values={TYPEWRITER_ROLES} />
+            </span>
+            <span className="cursor-blink inline-block h-6 w-2.5 bg-cyan-400" />
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mx-auto max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg lg:mx-0"
+          >
+            Full-stack developer specializing in distributed cloud microservices,
+            reactive frontend web applications, and ultra-fluid user interfaces.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start"
+          >
+            <a
+              href="#projects"
+              className="glow-btn flex items-center space-x-3 rounded-xl border border-cyan-500/50 bg-slate-900 px-8 py-4 font-bold text-white transition-transform hover:scale-105"
             >
-              <span className="relative flex h-3 w-3">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500" />
-              </span>
-              <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase">
-                Available for New Projects &amp; Roles
-              </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-6xl xl:text-7xl"
+              <span>Explore Projects</span>
+              <FaArrowRight className="text-sm text-cyan-400" />
+            </a>
+            <a
+              href="#contact"
+              className="glass-card flex items-center space-x-3 rounded-xl border border-slate-700 px-8 py-4 font-bold text-slate-200 transition-all hover:scale-105 hover:border-violet-500 hover:text-white"
             >
-              Crafting High Performance <br />
-              <span className="text-gradient">Digital Architectures</span>
-            </motion.h1>
+              <FaEnvelope className="text-violet-400" />
+              <span>Contact Me</span>
+            </a>
+          </motion.div>
 
-            {/* Dynamic Typewriter Text */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="flex h-10 items-center justify-center space-x-2 font-mono text-xl text-slate-300 sm:text-2xl lg:justify-start"
-            >
-              <span className="text-cyan-400">{">"}</span>
-              <span className="font-semibold text-slate-100">
-                <Typewriter values={TYPEWRITER_ROLES} />
-              </span>
-              <span className="cursor-blink inline-block h-6 w-2.5 bg-cyan-400" />
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-              className="mx-auto max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg lg:mx-0"
-            >
-              Full-stack developer specializing in distributed cloud microservices,
-              reactive frontend web applications, and ultra-fluid user interfaces.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start"
-            >
-              <a
-                href="#projects"
-                className="glow-btn flex items-center space-x-3 rounded-xl border border-cyan-500/50 bg-slate-900 px-8 py-4 font-bold text-white transition-transform hover:scale-105"
-              >
-                <span>Explore Projects</span>
-                <FaArrowRight className="text-sm text-cyan-400" />
-              </a>
-              <a
-                href="#contact"
-                className="glass-card flex items-center space-x-3 rounded-xl border border-slate-700 px-8 py-4 font-bold text-slate-200 transition-all hover:scale-105 hover:border-violet-500 hover:text-white"
-              >
-                <FaEnvelope className="text-violet-400" />
-                <span>Contact Me</span>
-              </a>
-            </motion.div>
-
-            {/* Quick Stats Counters */}
-            <div className="grid grid-cols-3 gap-4 border-t border-slate-800/80 pt-8 text-center lg:text-left">
-              {stats.map((s) => (
-                <Stat
-                  key={s.label}
-                  target={s.target}
-                  suffix={s.suffix}
-                  label={s.label}
-                  colorClass={s.colorClass}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Right Column: 3D Floating Profile Showcase Card */}
-          <div className="lg:col-span-6">
-            <ProfileCard profile={profile} />
+          {/* Quick Stats Counters */}
+          <div className="grid grid-cols-3 gap-4 border-t border-slate-800/80 pt-8 text-center lg:text-left">
+            {stats.map((s) => (
+              <Stat
+                key={s.label}
+                target={s.target}
+                suffix={s.suffix}
+                label={s.label}
+                colorClass={s.colorClass}
+              />
+            ))}
           </div>
         </div>
+
+        {/* Right Column: LARGE INTERACTIVE 3D FLOATING PROFILE SHOWCASE CARD */}
+        <div className="lg:col-span-6">
+          <ProfileCard profile={profile} portraitSrc={portraitSrc} />
+        </div>
+      </div>
     </section>
   );
 }

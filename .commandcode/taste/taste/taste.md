@@ -1,0 +1,17 @@
+# Taste
+- For web projects, prefers Next.js with Node.js backend (API routes), Tailwind CSS, shadcn/ui, and an animation framework (Framer Motion). Stated explicitly when requesting a portfolio build. Confidence: 0.7
+- Prefers sourcing dynamic data from external APIs (e.g., GitHub API for portfolio content) rather than hardcoding project data — stated explicitly that personal content should come from the GitHub API. Confidence: 0.8
+- Prefers making external data sources configurable via environment variables (e.g., a GITHUB_USER env var to switch GitHub accounts) instead of hardcoding a single source. Confidence: 0.7
+- Likes implementations that auto-detect an optional local asset override (e.g., a `portrait.png` dropped into `public/`) and gracefully fall back to API-derived data when the file is absent. Confidence: 0.6
+- Communicates in Bangla/Banglish and is answered in Bangla, keeping technical terms, code identifiers, and file paths in English. Confidence: 0.7
+- Gives terse instructions (e.g., "contineu") and expects the agent to keep executing the in-flight task without re-asking for clarification. Confidence: 0.6
+- Prefers a dark neon/cyberpunk aesthetic: near-black background (#050811) with cyan / violet / pink accents, glassmorphism panels, blurred glow orbs, and floating parallax badges. Confidence: 0.65
+- Prefers the framed 3D profile card with the photo inside it over a cut-out portrait — initially liked cut-out portraits, but reverted a mockup iteration back to the framed card and called the earlier design "best", so treat the framed card as the safer default. Confidence: 0.5
+- Supplies visual mockups/screenshots as inspiration and asks for high fidelity, but ultimately prefers the assistant's own original design over a faithful replica — asked to revert a 100%-match hero back to the earlier assistant-made version. Confidence: 0.6
+- When replicating a mockup, expects the exact design tokens to be matched rather than approximated: geometric display font vs body font, gradient angle and stop order, single-hue vs rainbow glows, headline line breaks, and column split proportions. Confidence: 0.6
+- Expects a visual verification loop on UI work: edit → run the dev server → screenshot with a browser tool → read the screenshot → compare against the reference → refine, repeating until it matches. Confidence: 0.7
+- Verifies with typecheck plus a production build before declaring a change done. Confidence: 0.6
+- GitHub account: "pappu116" (Pappu Hasan, React Frontend Developer), used for the portfolio project data. Confidence: 0.8
+- When asked to revert, expects a clean full restore of the previous state (component contents, fonts in layout.tsx, Tailwind font tokens, and mockup-only CSS classes all removed) rather than a partial/hybrid design. Confidence: 0.6
+- Avoids destructive edits to the user's files: excluded a stale duplicate folder from tsconfig instead of deleting it, left the mockup image in place, and asked before removing anything. Confidence: 0.65
+- Develops on Windows (projects under C:\Development\...). Noted for path/tooling compatibility. Confidence: 0.5

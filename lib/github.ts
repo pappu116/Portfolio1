@@ -137,8 +137,8 @@ function mapCategory(repo: GitHubRepo): string {
     .join(" ")
     .toLowerCase();
 
-  if (/\b(shop|store|commerce|product|pay)\b/.test(haystack)) return "ecommerce";
-  if (/\b(saas|platform|dashboard|api|service)\b/.test(haystack)) return "saas";
+  if (/\b(shop|store|commerce|e-?commerce|product|pay)\b/.test(haystack)) return "ecommerce";
+  if (/\b(saas|platform|dashboard|api|service|monitor|analytics)\b/.test(haystack)) return "saas";
   if (
     /\b(android|ios|flutter|mobile|app[- ]?lock|phone)\b/.test(haystack) ||
     repo.language === "Kotlin" ||
@@ -146,6 +146,12 @@ function mapCategory(repo: GitHubRepo): string {
     repo.language === "Dart"
   ) {
     return "mobile";
+  }
+  if (
+    ["JavaScript", "TypeScript", "HTML", "CSS", "Vue"].includes(repo.language || "") ||
+    /\b(react|web|website|landing|blog|template|login|chat)\b/.test(haystack)
+  ) {
+    return "webapp";
   }
   return "project";
 }

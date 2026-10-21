@@ -21,7 +21,8 @@
       "Shell(findstr:*)",
       "Shell(set:*)",
       "Shell(npx next build 2 >& 1)",
-      "Shell(agent-browser close --session portfolio-test 2>nul & agent-browser close)"
+      "Shell(agent-browser close --session portfolio-test 2>nul & agent-browser close)",
+      "Shell(dir /b && echo ---- && dir /b Portfolio1 2>nul && echo ---- && dir /b Portfolio1\\app 2>nul)"
     ],
     "deny": [],
     "defaultMode": "default"

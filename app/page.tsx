@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import {
   getFeaturedProjects,
   getGitHubProfile,
@@ -33,8 +35,19 @@ const FALLBACK_PROFILE: HeroProfile = {
   twitterUrl: null,
 };
 
+// Optional local portrait (drop a cut-out PNG at public/portrait.png). When
+// present it replaces the GitHub avatar in the hero.
+function getPortraitSrc(): string | null {
+  const candidates = ["portrait.png", "portrait.webp", "portrait.jpg", "portrait.jpeg"];
+  for (const file of candidates) {
+    if (fs.existsSync(path.join(process.cwd(), "public", file))) return `/${file}`;
+  }
+  return null;
+}
+
 export default async function Home() {
   const [profile, projects] = await Promise.all([getGitHubProfile(), getFeaturedProjects(6)]);
+  const portraitSrc = getPortraitSrc();
 
   const name = profile?.name || FALLBACK_PROFILE.name;
   const clean = name.trim();
@@ -79,7 +92,7 @@ export default async function Home() {
       <Navbar brandMain={brandMain} brandAccent={brandAccent} />
 
       <main className="relative z-10 pt-24">
-        <Hero profile={heroProfile} />
+        <Hero profile={heroProfile} portraitSrc={portraitSrc} />
 
         <CodeShowcase profile={heroProfile} />
 

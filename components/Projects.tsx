@@ -13,6 +13,7 @@ const FILTERS = [
   { id: "ecommerce", label: "E-Commerce" },
   { id: "ml", label: "Machine Learning" },
   { id: "mobile", label: "Mobile Apps" },
+  { id: "webapp", label: "Web Apps" },
 ];
 
 export default function Projects({ projects }: { projects: ProjectCard[] }) {
